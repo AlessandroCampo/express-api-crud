@@ -53,12 +53,33 @@ const show = async (req, res, next) => {
 
 
 const update = async (req, res, next) => {
+    const { slug } = req.params;
+    const { name, content, published } = req.body;
+    console.log(slug, name, content, published)
+
     try {
-        const allPosts = await prisma.post.findMany();
+        const updateData = {};
+        if (name !== undefined) {
+            updateData.name = name
+            updateData.slug = slugify(name)
+        };
+        if (content !== undefined) updateData.content = content;
+        if (published !== undefined) updateData.published = published;
+
+        const updatedPost = await prisma.post.update({
+            where: { slug },
+            data: updateData,
+        });
+
+        return res.json({
+            message: `Post with slug ${slug} has successfully been updated`,
+            updatedPost,
+        });
     } catch (err) {
-        next(err)
+        next(err);
     }
 };
+
 
 
 const destroy = async (req, res, next) => {
