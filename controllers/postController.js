@@ -1,11 +1,16 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const prisma = new PrismaClient();
 const slugify = require('slugify');
+const CustomError = require('../utils/CustomError');
+const prismaErorrHandler = require('../utils/prismaErorrHandler.js')
 
 const create = async (req, res, next) => {
     const { name, content, published } = req.body;
+    if (!name) {
+        return next(new CustomError('Validation error', 'The name field is required', 400))
+    }
     const data = {
-        name, content, published, slug: slugify(name)
+        name, content, published, slug: slugify(name) || undefined
     }
     try {
         const newPost = await prisma.post.create({ data })
@@ -14,7 +19,8 @@ const create = async (req, res, next) => {
             newPost
         })
     } catch (err) {
-        next(err)
+        const customError = prismaErorrHandler(err);
+        next(customError);
     }
 };
 
@@ -35,7 +41,8 @@ const index = async (req, res, next) => {
             totalPages
         })
     } catch (err) {
-        next(err)
+        const customError = prismaErorrHandler(err);
+        next(customError);
     }
 };
 
@@ -55,7 +62,8 @@ const show = async (req, res, next) => {
         //TODO - add custom error
         throw new Error(`Post with slug ${slug} has not been found`)
     } catch (err) {
-        next(err)
+        const customError = prismaErorrHandler(err);
+        next(customError);
     }
 };
 
@@ -85,7 +93,8 @@ const update = async (req, res, next) => {
             updatedPost,
         });
     } catch (err) {
-        next(err);
+        const customError = prismaErorrHandler(err);
+        next(customError);
     }
 };
 
@@ -102,7 +111,8 @@ const destroy = async (req, res, next) => {
             deletedPost,
         })
     } catch (err) {
-        next(err)
+        const customError = prismaErorrHandler(err);
+        next(customError);
     }
 };
 
