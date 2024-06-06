@@ -1,16 +1,18 @@
 const { PrismaClient, Prisma } = require('@prisma/client');
 const prisma = new PrismaClient();
-const slugify = require('slugify');
 const CustomError = require('../utils/CustomError');
-const prismaErorrHandler = require('../utils/prismaErorrHandler.js')
+const prismaErorrHandler = require('../utils/prismaErorrHandler.js');
+const createUniqueSlugForPost = require('../utils/createUniqueSlugForPost.js');
+
 
 const create = async (req, res, next) => {
     const { name, content, published } = req.body;
+    console.log(req.body)
     if (!name) {
         return next(new CustomError('Validation error', 'The name field is required', 400))
     }
     const data = {
-        name, content, published, slug: slugify(name) || undefined
+        name, content, published, slug: await createUniqueSlugForPost(name)
     }
     try {
         const newPost = await prisma.post.create({ data })

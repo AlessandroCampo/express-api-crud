@@ -6,7 +6,10 @@
   "scripts": {
     "start": "nodemon app.js",
     "migrate": "prisma migrate dev --name",
-    "post:seed": "node db/seeders/postSeeder.js"
+    "post:seed": "node db/seeders/postSeeder.js",
+    "category:seed": "node db/seeders/categorySeeder.js",
+    "tag:seed": "node db/seeders/tagSeeder.js",
+    "user:seed": "node db/seeders/userSeeder.js"
   },
   "keywords": [],
   "author": "",
