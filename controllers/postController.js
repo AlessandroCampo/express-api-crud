@@ -83,8 +83,15 @@ const update = async (req, res, next) => {
 
 
 const destroy = async (req, res, next) => {
+    const { slug } = req.params;
     try {
-        const allPosts = await prisma.post.findMany();
+        const deletedPost = await prisma.post.delete({
+            where: { slug }
+        });
+        res.json({
+            message: `Post with slug ${slug} has successfully been deleted`,
+            deletedPost,
+        })
     } catch (err) {
         next(err)
     }
