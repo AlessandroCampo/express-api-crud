@@ -19,11 +19,20 @@ const create = async (req, res, next) => {
 };
 
 const index = async (req, res, next) => {
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+    const totalPosts = await prisma.post.count();
+    const totalPages = Math.ceil(totalPosts / limit);
     try {
-        const allPosts = await prisma.post.findMany();
+        const allPosts = await prisma.post.findMany({
+            take: Number(limit),
+            skip: offset
+        });
         return res.json({
-            message: `${allPosts.length} ${allPosts.length > 1 ? 'posts' : 'post'} have been found`,
-            allPosts
+            message: `${allPosts.length} ${allPosts.length > 1 ? 'posts' : 'post'} have been found on page number ${page}`,
+            allPosts,
+            currentPage: page,
+            totalPages
         })
     } catch (err) {
         next(err)
