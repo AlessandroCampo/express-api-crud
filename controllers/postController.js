@@ -9,33 +9,53 @@ const create = async (req, res, next) => {
     }
     try {
         const newPost = await prisma.post.create({ data })
-        res.json({
+        return res.json({
             message: 'New post has been succesfully created',
             newPost
         })
     } catch (err) {
-        throw new Error(err)
+        next(err)
     }
 };
 
 const index = async (req, res, next) => {
-    res.json('This is the index controller')
+    try {
+        const allPosts = await prisma.post.findMany();
+        return res.json({
+            message: `${allPosts.length} ${allPosts.length > 1 ? 'posts' : 'post'} have been found`,
+            allPosts
+        })
+    } catch (err) {
+        next(err)
+    }
 };
 
 
 const show = async (req, res, next) => {
-
+    try {
+        const allPosts = await prisma.post.findMany();
+    } catch (err) {
+        next(err)
+    }
 };
 
 
 
 const update = async (req, res, next) => {
-
+    try {
+        const allPosts = await prisma.post.findMany();
+    } catch (err) {
+        next(err)
+    }
 };
 
 
 const destroy = async (req, res, next) => {
-
+    try {
+        const allPosts = await prisma.post.findMany();
+    } catch (err) {
+        next(err)
+    }
 };
 
 
