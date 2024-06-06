@@ -32,8 +32,19 @@ const index = async (req, res, next) => {
 
 
 const show = async (req, res, next) => {
+    const { slug } = req.params;
     try {
-        const allPosts = await prisma.post.findMany();
+        const foundPost = await prisma.post.findUnique({
+            where: { slug }
+        });
+        if (foundPost) {
+            return res.json({
+                message: `Post with slug ${slug} has succesfully been retrieved`,
+                foundPost
+            })
+        }
+        //TODO - add custom error
+        throw new Error(`Post with slug ${slug} has not been found`)
     } catch (err) {
         next(err)
     }
