@@ -6,13 +6,21 @@ const createUniqueSlugForPost = require('../utils/createUniqueSlugForPost.js');
 
 
 const create = async (req, res, next) => {
-    const { name, content, published } = req.body;
+    const { name, content, published, categoryId, userId, tags } = req.body;
     console.log(req.body)
     if (!name) {
         return next(new CustomError('Validation error', 'The name field is required', 400))
     }
     const data = {
-        name, content, published, slug: await createUniqueSlugForPost(name)
+        name,
+        content,
+        published,
+        slug: await createUniqueSlugForPost(name),
+        categoryId: Number(categoryId),
+        userId: Number(userId),
+        tags: {
+            connect: tags ? tags.map(tag => ({ id: Number(tag) })) : []
+        }
     }
     try {
         const newPost = await prisma.post.create({ data })
@@ -27,10 +35,16 @@ const create = async (req, res, next) => {
 };
 
 const index = async (req, res, next) => {
-    const { page = 1, limit = 10 } = req.query;
+    const where = {};
+    const { page = 1, limit = 10, published, containedString } = req.query;
+    if (published) where.published = published === 'true';
+    if (containedString) where.name = { contains: containedString };
+
+
     const offset = (page - 1) * limit;
     const totalPosts = await prisma.post.count();
     const totalPages = Math.ceil(totalPosts / limit);
+
     try {
         const allPosts = await prisma.post.findMany({
             take: Number(limit),
@@ -51,7 +65,8 @@ const index = async (req, res, next) => {
                         name: true
                     }
                 }
-            }
+            },
+            where
         });
         return res.json({
             message: `${allPosts.length} ${allPosts.length > 1 ? 'posts' : 'post'} have been found on page number ${page}`,
@@ -151,6 +166,10 @@ const destroy = async (req, res, next) => {
         next(customError);
     }
 };
+
+const comment = async (req, res, next) => {
+    const { slug } = req.params;
+}
 
 
 module.exports = {

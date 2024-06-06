@@ -10,9 +10,14 @@ function handlePrismaError(err) {
             case 'P2002':
                 const uniqueFields = err.meta.target;
                 title = 'ConflictError';
-                message = `A unique constraint failed on the fields: ${uniqueFields.join(', ')}`;
+                if (Array.isArray(uniqueFields)) {
+                    message = `A unique constraint failed on the fields: ${uniqueFields.join(', ')}`;
+                } else {
+                    message = `A unique constraint failed on the field: ${uniqueFields}`;
+                }
                 status = 409;
                 break;
+
             case 'P2003':
                 const foreignKeyField = err.meta.field_name;
                 title = 'ForeignKeyError';
@@ -20,9 +25,13 @@ function handlePrismaError(err) {
                 status = 409;
                 break;
             case 'P2001':
-                const missingField = err.meta.target;
+                let missingField = err.meta.target;
                 title = 'NotFoundError';
-                message = `The record with the specified ${missingField.join(', ')} was not found.`;
+                if (Array.isArray(missingField)) {
+                    message = `The record with the specified ${missingField.join(', ')} was not found.`;
+                } else {
+                    message = `The record with the specified ${missingField} was not found.`;
+                }
                 status = 404;
                 break;
             default:
