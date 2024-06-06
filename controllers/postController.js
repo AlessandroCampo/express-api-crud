@@ -34,7 +34,24 @@ const index = async (req, res, next) => {
     try {
         const allPosts = await prisma.post.findMany({
             take: Number(limit),
-            skip: offset
+            skip: offset,
+            include: {
+                User: {
+                    select: {
+                        username: true
+                    }
+                },
+                tags: {
+                    select: {
+                        name: true
+                    }
+                },
+                category: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
         });
         return res.json({
             message: `${allPosts.length} ${allPosts.length > 1 ? 'posts' : 'post'} have been found on page number ${page}`,
@@ -53,7 +70,24 @@ const show = async (req, res, next) => {
     const { slug } = req.params;
     try {
         const foundPost = await prisma.post.findUnique({
-            where: { slug }
+            where: { slug },
+            include: {
+                User: {
+                    select: {
+                        username: true
+                    }
+                },
+                tags: {
+                    select: {
+                        name: true
+                    }
+                },
+                category: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
         });
         if (foundPost) {
             return res.json({
